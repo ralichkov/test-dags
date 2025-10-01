@@ -17,4 +17,7 @@ with DAG(
         arguments=["for i in $(seq 1 600); do echo tick $i; sleep 1; done"],
         in_cluster=True,
         on_finish_action="delete_pod",
+        reattach_on_restart=True,
+        termination_grace_period=60,
+        termination_message_policy="FallbackToLogsOnError",
     )
