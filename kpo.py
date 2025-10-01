@@ -20,7 +20,7 @@ kpo = KubernetesPodOperator(
     termination_grace_period=60,
     termination_message_policy="FallbackToLogsOnError",
 )
-kpo = kpo.on_kill = kill_override
+kpo.on_kill = kill_override
 
 with DAG(
     dag_id="kpo",
