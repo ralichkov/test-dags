@@ -2,8 +2,19 @@ import pendulum
 from airflow.sdk import DAG
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 
-def create_custom_kpo():
-    kpo = KubernetesPodOperator(
+class CustomKpo(KubernetesPodOperator):
+    def on_kill(self) -> None:
+        print("Operator got killed.")
+        self.log.warning("Operator killed.")
+        return
+
+with DAG(
+    dag_id="kpo",
+    start_date=pendulum.datetime(2016, 1, 1),
+    schedule=None,
+    default_args={"retries": 0},
+):
+    CustomKpo(
         task_id="idle",
         name="idle",
         namespace="airflow",
@@ -16,21 +27,3 @@ def create_custom_kpo():
         termination_grace_period=60,
         termination_message_policy="FallbackToLogsOnError",
     )
-
-    def kill_override(self):
-        print("Operator got killed.")
-        self.log.warning("Operator killed.")
-        return
-
-    kpo.on_kill = kill_override
-
-    return kpo
-
-
-with DAG(
-    dag_id="kpo",
-    start_date=pendulum.datetime(2016, 1, 1),
-    schedule=None,
-    default_args={"retries": 0},
-):
-    op = create_custom_kpo()
