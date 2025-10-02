@@ -4,19 +4,10 @@ from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperato
 
 class CustomKpo(KubernetesPodOperator):
     def on_kill(self) -> None:
-        import traceback
-        stack = traceback.extract_stack()
         self.log.warning("Operator killed.")
-
-        caller = stack[-2]  # current function is last
-        self.log.warning(
-            f"caller -> func={caller.function}, file={caller.filename}, line={caller.lineno}"
-        )
-
-        grandcaller = stack[-3]
-        self.log.warning(
-            f"grandcaller -> func={grandcaller.function}, file={grandcaller.filename}, line={grandcaller.lineno}"
-        )
+        import traceback
+        for f in traceback.extract_stack():
+            print(f"func={f.name}, file={f.filename}, line={f.lineno}")
         return
 
 with DAG(
